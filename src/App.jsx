@@ -7,6 +7,9 @@ import Layout from './components/Layout/Layout';
 import Dashboard from './pages/Dashboard/Dashboard';
 import InventoryManagement from './pages/InventoryManagement/InventoryManagement';
 import DemandAnalysis from './pages/DemandAnalysis/DemandAnalysis.jsx';
+import SupplierPerformance from './pages/SupplierPerformance/SupplierPerformance.jsx';
+import DynamicPricing from './pages/DynamicPricing/DynamicPricing.jsx';
+import LoyaltyProgram from './pages/LoyaltyProgram/LoyaltyProgram.jsx'
 import './App.css';
 
 const theme = createTheme({
@@ -36,6 +39,9 @@ function App() {
             <Route index element={<Dashboard />} />
             <Route path="inventory" element={<InventoryManagement />} />
             <Route path="demand" element={<DemandAnalysis/>}/>
+            <Route path="suppliers" element={<SupplierPerformance/>}/>
+            <Route path="pricing" element={<DynamicPricing/>}/>
+            <Route path="loyalty" element={<LoyaltyProgram/>}/>
           </Route>
         </Routes>
       </Router>
