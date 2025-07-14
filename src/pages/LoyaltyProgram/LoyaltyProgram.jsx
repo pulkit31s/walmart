@@ -1,5 +1,6 @@
 // src/pages/LoyaltyProgram/LoyaltyProgram.jsx
 import React, { useState, useEffect } from 'react';
+import { fetchLoyalty, addLoyalty } from './loyaltyApi';
 import {
   Box,
   Typography,
@@ -232,7 +233,7 @@ const SpinWheel = ({ onSpin, isSpinning }) => {
           border: '8px solid #0071ce',
           margin: '0 auto 20px',
           position: 'relative',
-          background: `conic-gradient(${prizes.map((prize, index) => 
+          background: `conic-gradient(${prizes.map((prize, index) =>
             `${prize.color} ${index * 45}deg ${(index + 1) * 45}deg`
           ).join(', ')})`,
           animation: isSpinning ? 'spin 3s ease-out' : 'none',
@@ -343,171 +344,34 @@ function LoyaltyProgram() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSpinning, setIsSpinning] = useState(false);
 
-  const [loyaltyData, setLoyaltyData] = useState({
-    metrics: {
-      totalMembers: 45678,
-      activeMembers: 38945,
-      avgPointsPerMember: 2456,
-      redemptionRate: 67.8,
-    },
-    changes: {
-      members: 15.3,
-      active: 8.7,
-      points: 23.4,
-      redemption: 12.1,
-    },
-    customers: [
-      {
-        id: 1,
-        name: 'Sarah Johnson',
-        tier: 'Platinum',
-        points: 15420,
-        engagementLevel: 95,
-        totalSpent: 12500,
-        achievements: 28,
-        joinDate: '2022-01-15',
-      },
-      {
-        id: 2,
-        name: 'Mike Chen',
-        tier: 'Gold',
-        points: 8750,
-        engagementLevel: 82,
-        totalSpent: 8900,
-        achievements: 19,
-        joinDate: '2022-03-22',
-      },
-      {
-        id: 3,
-        name: 'Emily Davis',
-        tier: 'Silver',
-        points: 4320,
-        engagementLevel: 68,
-        totalSpent: 4200,
-        achievements: 12,
-        joinDate: '2023-05-10',
-      },
-      {
-        id: 4,
-        name: 'John Smith',
-        tier: 'Bronze',
-        points: 1890,
-        engagementLevel: 45,
-        totalSpent: 1800,
-        achievements: 6,
-        joinDate: '2023-08-05',
-      },
-      {
-        id: 5,
-        name: 'Lisa Wong',
-        tier: 'Gold',
-        points: 9650,
-        engagementLevel: 88,
-        totalSpent: 9200,
-        achievements: 22,
-        joinDate: '2022-07-18',
-      },
-    ],
-    engagementTrends: [
-      { month: 'Jan', logins: 12500, purchases: 8900, points: 125000 },
-      { month: 'Feb', logins: 13200, purchases: 9200, points: 132000 },
-      { month: 'Mar', logins: 14800, purchases: 10100, points: 148000 },
-      { month: 'Apr', logins: 15600, purchases: 10800, points: 156000 },
-      { month: 'May', logins: 14200, purchases: 9800, points: 142000 },
-      { month: 'Jun', logins: 16800, purchases: 11500, points: 168000 },
-    ],
-    tierDistribution: [
-      { tier: 'Bronze', members: 18500, percentage: 40.5 },
-      { tier: 'Silver', members: 13700, percentage: 30.0 },
-      { tier: 'Gold', members: 9100, percentage: 19.9 },
-      { tier: 'Platinum', members: 4378, percentage: 9.6 },
-    ],
-    achievements: [
-      {
-        id: 1,
-        name: 'First Purchase',
-        description: 'Complete your first purchase',
-        category: 'Beginner',
-        points: 100,
-      },
-      {
-        id: 2,
-        name: 'Shopping Spree',
-        description: 'Spend $1000 in a month',
-        category: 'Spending',
-        points: 500,
-      },
-      {
-        id: 3,
-        name: 'Review Master',
-        description: 'Write 10 product reviews',
-        category: 'Engagement',
-        points: 300,
-      },
-      {
-        id: 4,
-        name: 'Referral Champion',
-        description: 'Refer 5 friends',
-        category: 'Social',
-        points: 1000,
-      },
-      {
-        id: 5,
-        name: 'Loyalty Legend',
-        description: 'Member for 2 years',
-        category: 'Milestone',
-        points: 2000,
-      },
-      {
-        id: 6,
-        name: 'Daily Visitor',
-        description: 'Login 30 days in a row',
-        category: 'Engagement',
-        points: 750,
-      },
-    ],
-    leaderboard: [
-      { rank: 1, name: 'Sarah Johnson', points: 15420, tier: 'Platinum' },
-      { rank: 2, name: 'Alex Rodriguez', points: 14890, tier: 'Platinum' },
-      { rank: 3, name: 'Maria Garcia', points: 13560, tier: 'Platinum' },
-      { rank: 4, name: 'David Kim', points: 12340, tier: 'Gold' },
-      { rank: 5, name: 'Jennifer Lee', points: 11890, tier: 'Gold' },
-    ],
-    alerts: [
-      {
-        type: 'success',
-        message: 'Loyalty program engagement increased by 15.3% this month',
-        action: 'View Details',
-      },
-      {
-        type: 'info',
-        message: '1,234 members are close to tier upgrade',
-        action: 'Send Notifications',
-      },
-      {
-        type: 'warning',
-        message: 'Point redemption rate below target (67.8% vs 75% target)',
-        action: 'Review Rewards',
-      },
-    ],
-  });
+  const [loyaltyData, setLoyaltyData] = useState(null);
+  const [error, setError] = useState(null);
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
 
-  const handleRefreshData = () => {
+  // Fetch loyalty data from backend
+  const loadLoyaltyData = async () => {
     setIsLoading(true);
-    setTimeout(() => {
-      setLoyaltyData(prev => ({
-        ...prev,
-        metrics: {
-          ...prev.metrics,
-          activeMembers: prev.metrics.activeMembers + Math.floor(Math.random() * 100 - 50),
-        },
-      }));
+    setError(null);
+    try {
+      const data = await fetchLoyalty();
+      setLoyaltyData(data);
+    } catch (err) {
+      setError('Failed to load loyalty data');
+    } finally {
       setIsLoading(false);
-    }, 2000);
+    }
+  };
+
+  useEffect(() => {
+    loadLoyaltyData();
+    // eslint-disable-next-line
+  }, []);
+
+  const handleRefreshData = () => {
+    loadLoyaltyData();
   };
 
   const handleSpin = () => {
@@ -527,14 +391,21 @@ function LoyaltyProgram() {
     console.log('Edit customer:', customer);
   };
 
-  const filteredCustomers = loyaltyData.customers.filter(customer => {
-    const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesTier = !tierFilter || customer.tier === tierFilter;
-    
-    return matchesSearch && matchesTier;
-  });
+  const filteredCustomers = loyaltyData && loyaltyData.customers
+    ? loyaltyData.customers.filter(customer => {
+      const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesTier = !tierFilter || customer.tier === tierFilter;
+      return matchesSearch && matchesTier;
+    })
+    : [];
 
-  const { metrics, changes, engagementTrends, tierDistribution, achievements, leaderboard, alerts } = loyaltyData;
+  const metrics = loyaltyData?.metrics || {};
+  const changes = loyaltyData?.changes || {};
+  const engagementTrends = loyaltyData?.engagementTrends || [];
+  const tierDistribution = loyaltyData?.tierDistribution || [];
+  const achievements = loyaltyData?.achievements || [];
+  const leaderboard = loyaltyData?.leaderboard || [];
+  const alerts = loyaltyData?.alerts || [];
 
   return (
     <Box>
@@ -557,6 +428,8 @@ function LoyaltyProgram() {
         </Box>
       </Box>
 
+      {/* Error Message */}
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       {/* Loading Indicator */}
       {isLoading && <LinearProgress sx={{ mb: 2 }} />}
 

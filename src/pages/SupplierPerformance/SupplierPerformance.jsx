@@ -1,4 +1,3 @@
-// src/pages/SupplierPerformance/SupplierPerformance.jsx
 import React, { useState, useEffect } from 'react';
 import {
   Box,
@@ -41,7 +40,7 @@ import {
   Schedule,
   CheckCircle,
   Warning,
-  Error,
+  Error as ErrorIcon,
   Refresh,
   Download,
   FilterList,
@@ -53,6 +52,7 @@ import {
   LocalShipping,
   Assessment,
   ContactPhone,
+  Delete,
 } from '@mui/icons-material';
 import {
   LineChart,
@@ -64,68 +64,19 @@ import {
   ResponsiveContainer,
   BarChart,
   Bar,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Radar,
+  AreaChart,
+  Area,
+  ComposedChart,
   Legend,
-  PieChart,
-  Pie,
-  Cell,
+  ScatterChart,
+  Scatter,
 } from 'recharts';
+import { fetchSuppliers, addSupplier, updateSupplier, deleteSupplier } from './supplierApi';
 
-// Supplier Metric Card Component
-const SupplierMetricCard = ({ title, value, change, icon, color = 'primary', subtitle }) => (
-  <Card sx={{ height: '100%' }}>
-    <CardContent>
-      <Box display="flex" alignItems="center" justifyContent="space-between">
-        <Box>
-          <Typography color="textSecondary" gutterBottom variant="body2">
-            {title}
-          </Typography>
-          <Typography variant="h4" component="h2">
-            {value}
-          </Typography>
-          {subtitle && (
-            <Typography variant="body2" color="textSecondary">
-              {subtitle}
-            </Typography>
-          )}
-          <Box display="flex" alignItems="center" mt={1}>
-            {change > 0 ? (
-              <TrendingUp color="success" fontSize="small" />
-            ) : (
-              <TrendingDown color="error" fontSize="small" />
-            )}
-            <Typography
-              variant="body2"
-              color={change > 0 ? 'success.main' : 'error.main'}
-              sx={{ ml: 0.5 }}
-            >
-              {Math.abs(change)}%
-            </Typography>
-          </Box>
-        </Box>
-        <Box
-          sx={{
-            backgroundColor: `${color}.light`,
-            borderRadius: '50%',
-            p: 1,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          {icon}
-        </Box>
-      </Box>
-    </CardContent>
-  </Card>
-);
+// ...rest of the file remains unchanged...
 
 // Supplier Row Component
-const SupplierRow = ({ supplier, onEdit, onView }) => {
+const SupplierRow = ({ supplier, onEdit, onView, onDelete }) => {
   const getPerformanceColor = (score) => {
     if (score >= 90) return 'success';
     if (score >= 75) return 'warning';
@@ -190,6 +141,9 @@ const SupplierRow = ({ supplier, onEdit, onView }) => {
         </IconButton>
         <IconButton onClick={() => onEdit(supplier)} size="small">
           <Edit />
+        </IconButton>
+        <IconButton onClick={() => onDelete(supplier)} size="small" color="error">
+          <Delete />
         </IconButton>
       </TableCell>
     </TableRow>
@@ -282,8 +236,12 @@ function SupplierPerformance() {
   const [categoryFilter, setCategoryFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [selectedSupplier, setSelectedSupplier] = useState(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editData, setEditData] = useState(null);
+  const [dialogLoading, setDialogLoading] = useState(false);
 
   const [supplierData, setSupplierData] = useState({
     metrics: {
@@ -410,18 +368,27 @@ function SupplierPerformance() {
     setTabValue(newValue);
   };
 
-  const handleRefreshData = () => {
+  // Fetch supplier data from backend
+  const loadSupplierData = async () => {
     setIsLoading(true);
-    setTimeout(() => {
-      setSupplierData(prev => ({
-        ...prev,
-        metrics: {
-          ...prev.metrics,
-          avgQualityScore: prev.metrics.avgQualityScore + Math.random() * 2 - 1,
-        },
-      }));
+    setError(null);
+    try {
+      const data = await fetchSuppliers();
+      setSupplierData(data);
+    } catch (err) {
+      setError('Failed to load supplier data');
+    } finally {
       setIsLoading(false);
-    }, 2000);
+    }
+  };
+
+  useEffect(() => {
+    loadSupplierData();
+    // eslint-disable-next-line
+  }, []);
+
+  const handleRefreshData = () => {
+    loadSupplierData();
   };
 
   const handleViewSupplier = (supplier) => {
@@ -429,20 +396,65 @@ function SupplierPerformance() {
     setDetailsOpen(true);
   };
 
+
   const handleEditSupplier = (supplier) => {
-    console.log('Edit supplier:', supplier);
+    setEditData(supplier);
+    setDialogOpen(true);
   };
 
-  const filteredSuppliers = supplierData.suppliers.filter(supplier => {
-    const matchesSearch = supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         supplier.category.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !categoryFilter || supplier.category === categoryFilter;
-    const matchesStatus = !statusFilter || supplier.status === statusFilter;
-    
-    return matchesSearch && matchesCategory && matchesStatus;
-  });
+  const handleDeleteSupplier = async (supplier) => {
+    setDialogLoading(true);
+    setError(null);
+    try {
+      await deleteSupplier(supplier._id || supplier.id);
+      await loadSupplierData();
+    } catch (err) {
+      setError('Failed to delete supplier data');
+    } finally {
+      setDialogLoading(false);
+    }
+  };
 
-  const { metrics, changes, performanceTrends, categoryPerformance, riskAssessment, alerts } = supplierData;
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+    setEditData(null);
+  };
+
+  const handleDialogSave = async (form) => {
+    setDialogLoading(true);
+    setError(null);
+    try {
+      if (editData && (editData._id || editData.id)) {
+        await updateSupplier(editData._id || editData.id, form);
+      } else {
+        await addSupplier(form);
+      }
+      setDialogOpen(false);
+      setEditData(null);
+      await loadSupplierData();
+    } catch (err) {
+      setError('Failed to save supplier data');
+    } finally {
+      setDialogLoading(false);
+    }
+  };
+
+  const filteredSuppliers = supplierData && supplierData.suppliers
+    ? supplierData.suppliers.filter(supplier => {
+      const matchesSearch = supplier.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        supplier.category.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory = !categoryFilter || supplier.category === categoryFilter;
+      const matchesStatus = !statusFilter || supplier.status === statusFilter;
+      return matchesSearch && matchesCategory && matchesStatus;
+    })
+    : [];
+
+  const metrics = supplierData?.metrics || {};
+  const changes = supplierData?.changes || {};
+  const performanceTrends = supplierData?.performanceTrends || [];
+  const categoryPerformance = supplierData?.categoryPerformance || [];
+  const riskAssessment = supplierData?.riskAssessment || [];
+  const alerts = supplierData?.alerts || [];
 
   return (
     <Box>
@@ -465,6 +477,8 @@ function SupplierPerformance() {
         </Box>
       </Box>
 
+      {/* Error Message */}
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       {/* Loading Indicator */}
       {isLoading && <LinearProgress sx={{ mb: 2 }} />}
 
@@ -605,12 +619,21 @@ function SupplierPerformance() {
               <TableBody>
                 {filteredSuppliers.map((supplier) => (
                   <SupplierRow
-                    key={supplier.id}
+                    key={supplier._id || supplier.id}
                     supplier={supplier}
                     onEdit={handleEditSupplier}
                     onView={handleViewSupplier}
+                    onDelete={handleDeleteSupplier}
                   />
                 ))}
+                {/* Add/Edit Dialog */}
+                <SupplierDialog
+                  open={dialogOpen}
+                  onClose={handleDialogClose}
+                  onSave={handleDialogSave}
+                  initialData={editData}
+                  loading={dialogLoading}
+                />
               </TableBody>
             </Table>
           </TableContainer>
@@ -677,7 +700,7 @@ function SupplierPerformance() {
                         label={item.risk}
                         color={
                           item.risk === 'Low' ? 'success' :
-                          item.risk === 'Medium' ? 'warning' : 'error'
+                            item.risk === 'Medium' ? 'warning' : 'error'
                         }
                         size="small"
                       />
@@ -690,7 +713,7 @@ function SupplierPerformance() {
                         sx={{ width: 100 }}
                         color={
                           item.score >= 90 ? 'success' :
-                          item.score >= 75 ? 'warning' : 'error'
+                            item.score >= 75 ? 'warning' : 'error'
                         }
                       />
                     </TableCell>
@@ -752,6 +775,77 @@ function SupplierPerformance() {
         supplier={selectedSupplier}
       />
     </Box>
+  );
+}
+
+function SupplierDialog({ open, onClose, onSave, initialData, loading }) {
+  const [form, setForm] = React.useState({
+    name: '',
+    category: '',
+    rating: '',
+    onTimeDelivery: '',
+    qualityScore: '',
+    totalOrders: '',
+    status: 'Active',
+    email: '',
+    phone: '',
+    address: '',
+  });
+
+  React.useEffect(() => {
+    if (initialData) {
+      setForm({ ...initialData });
+    } else {
+      setForm({
+        name: '',
+        category: '',
+        rating: '',
+        onTimeDelivery: '',
+        qualityScore: '',
+        totalOrders: '',
+        status: 'Active',
+        email: '',
+        phone: '',
+        address: '',
+      });
+    }
+  }, [initialData, open]);
+
+  const handleChange = (field) => (e) => {
+    setForm((prev) => ({ ...prev, [field]: e.target.value }));
+  };
+
+  const handleSave = () => {
+    onSave(form);
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>{initialData ? 'Edit Supplier' : 'Add Supplier'}</DialogTitle>
+      <DialogContent>
+        <TextField label="Name" value={form.name} onChange={handleChange('name')} fullWidth margin="normal" />
+        <TextField label="Category" value={form.category} onChange={handleChange('category')} fullWidth margin="normal" />
+        <TextField label="Rating" value={form.rating} onChange={handleChange('rating')} type="number" fullWidth margin="normal" />
+        <TextField label="On-Time Delivery (%)" value={form.onTimeDelivery} onChange={handleChange('onTimeDelivery')} type="number" fullWidth margin="normal" />
+        <TextField label="Quality Score (%)" value={form.qualityScore} onChange={handleChange('qualityScore')} type="number" fullWidth margin="normal" />
+        <TextField label="Total Orders" value={form.totalOrders} onChange={handleChange('totalOrders')} type="number" fullWidth margin="normal" />
+        <FormControl fullWidth margin="normal">
+          <InputLabel>Status</InputLabel>
+          <Select value={form.status} onChange={handleChange('status')} label="Status">
+            <MenuItem value="Active">Active</MenuItem>
+            <MenuItem value="Under Review">Under Review</MenuItem>
+            <MenuItem value="Suspended">Suspended</MenuItem>
+          </Select>
+        </FormControl>
+        <TextField label="Email" value={form.email} onChange={handleChange('email')} fullWidth margin="normal" />
+        <TextField label="Phone" value={form.phone} onChange={handleChange('phone')} fullWidth margin="normal" />
+        <TextField label="Address" value={form.address} onChange={handleChange('address')} fullWidth margin="normal" />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={handleSave} variant="contained" disabled={loading}>{initialData ? 'Save' : 'Add'}</Button>
+      </DialogActions>
+    </Dialog>
   );
 }
 

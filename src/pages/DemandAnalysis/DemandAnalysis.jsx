@@ -1,7 +1,7 @@
 // src/pages/DemandAnalysis/DemandAnalysis.jsx
 import React, { useState, useEffect } from 'react';
+import { fetchDemand, addDemand, updateDemand, deleteDemand } from './demandApi';
 import {
-  Box,
   Typography,
   Grid,
   Card,
@@ -26,12 +26,16 @@ import {
   Tab,
   IconButton,
   Tooltip,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
 } from '@mui/material';
 import {
   TrendingUp,
   TrendingDown,
   Analytics,
-  ShowChart,        // ✅ Fixed: Using ShowChart instead of Forecast
+  ShowChart,
   Warning,
   CheckCircle,
   Info,
@@ -56,231 +60,164 @@ import {
   Legend,
 } from 'recharts';
 
-// Metric Card Component for Demand Analytics
-const DemandMetricCard = ({ title, value, change, icon, color = 'primary', subtitle }) => (
-  <Card sx={{ height: '100%' }}>
-    <CardContent>
-      <Box display="flex" alignItems="center" justifyContent="space-between">
-        <Box>
-          <Typography color="textSecondary" gutterBottom variant="body2">
-            {title}
-          </Typography>
-          <Typography variant="h4" component="h2">
-            {value}
-          </Typography>
-          {subtitle && (
-            <Typography variant="body2" color="textSecondary">
-              {subtitle}
-            </Typography>
-          )}
-          <Box display="flex" alignItems="center" mt={1}>
-            {change > 0 ? (
-              <TrendingUp color="success" fontSize="small" />
-            ) : (
-              <TrendingDown color="error" fontSize="small" />
-            )}
-            <Typography
-              variant="body2"
-              color={change > 0 ? 'success.main' : 'error.main'}
-              sx={{ ml: 0.5 }}
-            >
-              {Math.abs(change)}%
-            </Typography>
-          </Box>
-        </Box>
-        <Box
-          sx={{
-            backgroundColor: `${color}.light`,
-            borderRadius: '50%',
-            p: 1,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          {icon}
-        </Box>
-      </Box>
-    </CardContent>
-  </Card>
-);
+// Add/Edit Dialog for Product Forecasts
+function AddEditForecastDialog({ open, onClose, onSave, initialData, loading }) {
+  const [form, setForm] = useState({
+    name: '',
+    category: '',
+    currentDemand: '',
+    forecastedDemand: '',
+    accuracy: '',
+    trend: 'up',
+  });
 
-// Forecast Accuracy Component
-const ForecastAccuracy = ({ product, accuracy, trend }) => {
-  const getAccuracyColor = (acc) => {
-    if (acc >= 90) return 'success';
-    if (acc >= 75) return 'warning';
-    return 'error';
+  useEffect(() => {
+    if (initialData) {
+      setForm({ ...initialData });
+    } else {
+      setForm({
+        name: '',
+        category: '',
+        currentDemand: '',
+        forecastedDemand: '',
+        accuracy: '',
+        trend: 'up',
+      });
+    }
+  }, [initialData, open]);
+
+  const handleChange = (field) => (e) => {
+    setForm((prev) => ({ ...prev, [field]: e.target.value }));
+  };
+
+  const handleSave = () => {
+    onSave(form);
   };
 
   return (
-    <TableRow hover>
-      <TableCell>{product.name}</TableCell>
-      <TableCell>{product.category}</TableCell>
-      <TableCell align="right">{product.currentDemand.toLocaleString()}</TableCell>
-      <TableCell align="right">{product.forecastedDemand.toLocaleString()}</TableCell>
-      <TableCell align="center">
-        <Chip
-          label={`${accuracy}%`}
-          color={getAccuracyColor(accuracy)}
-          size="small"
-        />
-      </TableCell>
-      <TableCell align="center">
-        {trend === 'up' ? (
-          <TrendingUp color="success" />
-        ) : trend === 'down' ? (
-          <TrendingDown color="error" />
-        ) : (
-          <div>-</div>
-        )}
-      </TableCell>
-    </TableRow>
-  );
-};
-
-// Tab Panel Component
-function TabPanel({ children, value, index, ...other }) {
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`demand-tabpanel-${index}`}
-      aria-labelledby={`demand-tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
-    </div>
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>{initialData ? 'Edit Product Forecast' : 'Add Product Forecast'}</DialogTitle>
+      <DialogContent>
+        <TextField label="Product Name" value={form.name} onChange={handleChange('name')} fullWidth margin="normal" />
+        <TextField label="Category" value={form.category} onChange={handleChange('category')} fullWidth margin="normal" />
+        <TextField label="Current Demand" value={form.currentDemand} onChange={handleChange('currentDemand')} type="number" fullWidth margin="normal" />
+        <TextField label="Forecasted Demand" value={form.forecastedDemand} onChange={handleChange('forecastedDemand')} type="number" fullWidth margin="normal" />
+        <TextField label="Accuracy (%)" value={form.accuracy} onChange={handleChange('accuracy')} type="number" fullWidth margin="normal" />
+        <FormControl fullWidth margin="normal">
+          <InputLabel>Trend</InputLabel>
+          <Select value={form.trend} onChange={handleChange('trend')} label="Trend">
+            <MenuItem value="up">Up</MenuItem>
+            <MenuItem value="down">Down</MenuItem>
+            <MenuItem value="flat">Flat</MenuItem>
+          </Select>
+        </FormControl>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={handleSave} variant="contained" disabled={loading}>{initialData ? 'Save' : 'Add'}</Button>
+      </DialogActions>
+    </Dialog>
   );
 }
+// ...existing code...
 
-// Main Demand Analysis Component
 function DemandAnalysis() {
   const [tabValue, setTabValue] = useState(0);
   const [timeRange, setTimeRange] = useState('30');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  
-  const [demandData, setDemandData] = useState({
-    metrics: {
-      totalDemand: 125000,
-      forecastAccuracy: 87.5,
-      demandGrowth: 12.3,
-      seasonalIndex: 1.15,
-    },
-    changes: {
-      demand: 8.5,
-      accuracy: 3.2,
-      growth: -2.1,
-      seasonal: 15.7,
-    },
-    forecastData: [
-      { month: 'Jan', actual: 65000, forecast: 62000, confidence: 85 },
-      { month: 'Feb', actual: 59000, forecast: 58000, confidence: 88 },
-      { month: 'Mar', actual: 80000, forecast: 75000, confidence: 82 },
-      { month: 'Apr', actual: 81000, forecast: 78000, confidence: 90 },
-      { month: 'May', actual: 56000, forecast: 60000, confidence: 85 },
-      { month: 'Jun', actual: 55000, forecast: 58000, confidence: 87 },
-      { month: 'Jul', actual: null, forecast: 62000, confidence: 83 },
-      { month: 'Aug', actual: null, forecast: 68000, confidence: 81 },
-      { month: 'Sep', actual: null, forecast: 72000, confidence: 79 },
-    ],
-    productForecasts: [
-      {
-        id: 1,
-        name: 'Samsung 55" Smart TV',
-        category: 'Electronics',
-        currentDemand: 450,
-        forecastedDemand: 520,
-        accuracy: 92,
-        trend: 'up',
-      },
-      {
-        id: 2,
-        name: 'Nike Air Max Shoes',
-        category: 'Clothing',
-        currentDemand: 280,
-        forecastedDemand: 310,
-        accuracy: 88,
-        trend: 'up',
-      },
-      {
-        id: 3,
-        name: 'Dyson V11 Vacuum',
-        category: 'Home & Garden',
-        currentDemand: 150,
-        forecastedDemand: 135,
-        accuracy: 85,
-        trend: 'down',
-      },
-      {
-        id: 4,
-        name: 'iPhone 15 Pro',
-        category: 'Electronics',
-        currentDemand: 680,
-        forecastedDemand: 750,
-        accuracy: 94,
-        trend: 'up',
-      },
-      {
-        id: 5,
-        name: 'Adidas Running Shoes',
-        category: 'Clothing',
-        currentDemand: 320,
-        forecastedDemand: 290,
-        accuracy: 79,
-        trend: 'down',
-      },
-    ],
-    seasonalTrends: [
-      { period: 'Q1', electronics: 85, clothing: 70, homeGarden: 60, sports: 45 },
-      { period: 'Q2', electronics: 90, clothing: 85, homeGarden: 95, sports: 80 },
-      { period: 'Q3', electronics: 95, clothing: 90, homeGarden: 85, sports: 100 },
-      { period: 'Q4', electronics: 120, clothing: 110, homeGarden: 75, sports: 65 },
-    ],
-    alerts: [
-      {
-        type: 'warning',
-        message: 'Demand forecast accuracy below 80% for 3 products',
-        action: 'Review Models',
-      },
-      {
-        type: 'info',
-        message: 'Seasonal demand spike expected for Electronics in Q4',
-        action: 'Plan Inventory',
-      },
-      {
-        type: 'success',
-        message: 'Overall forecast accuracy improved by 3.2% this month',
-        action: 'View Details',
-      },
-    ],
-  });
+  const [demandData, setDemandData] = useState(null);
+  const [error, setError] = useState(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editData, setEditData] = useState(null);
+  const [dialogLoading, setDialogLoading] = useState(false);
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
 
-  const handleRefreshData = () => {
+  // Fetch demand data from backend
+  const loadDemandData = async () => {
     setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setDemandData(prev => ({
-        ...prev,
-        metrics: {
-          ...prev.metrics,
-          totalDemand: prev.metrics.totalDemand + Math.floor(Math.random() * 1000 - 500),
-        },
-      }));
+    setError(null);
+    try {
+      const data = await fetchDemand();
+      setDemandData(data);
+    } catch (err) {
+      setError('Failed to load demand data');
+    } finally {
       setIsLoading(false);
-    }, 2000);
+    }
   };
 
-  const filteredProducts = demandData.productForecasts.filter(product => 
-    !categoryFilter || product.category === categoryFilter
-  );
+  useEffect(() => {
+    loadDemandData();
+    // eslint-disable-next-line
+  }, []);
 
-  const { metrics, changes, forecastData, seasonalTrends, alerts } = demandData;
+  const handleRefreshData = () => {
+    loadDemandData();
+  };
+
+  const handleAdd = () => {
+    setEditData(null);
+    setDialogOpen(true);
+  };
+
+
+  const handleEdit = (product) => {
+    setEditData(product);
+    setDialogOpen(true);
+  };
+
+  const handleDelete = async (id) => {
+    setDialogLoading(true);
+    setError(null);
+    try {
+      await deleteDemand(id);
+      await loadDemandData();
+    } catch (err) {
+      setError('Failed to delete demand data');
+    } finally {
+      setDialogLoading(false);
+    }
+  };
+
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+    setEditData(null);
+  };
+
+  const handleDialogSave = async (form) => {
+    setDialogLoading(true);
+    setError(null);
+    try {
+      if (editData && (editData._id || editData.id)) {
+        await updateDemand(editData._id || editData.id, form);
+      } else {
+        await addDemand(form);
+      }
+      setDialogOpen(false);
+      setEditData(null);
+      await loadDemandData();
+    } catch (err) {
+      setError('Failed to save demand data');
+    } finally {
+      setDialogLoading(false);
+    }
+  };
+
+  const filteredProducts = demandData && demandData.productForecasts
+    ? demandData.productForecasts.filter(product =>
+      !categoryFilter || product.category === categoryFilter
+    )
+    : [];
+
+  const metrics = demandData?.metrics || {};
+  const changes = demandData?.changes || {};
+  const forecastData = demandData?.forecastData || [];
+  const seasonalTrends = demandData?.seasonalTrends || [];
+  const alerts = demandData?.alerts || [];
 
   return (
     <Box>
@@ -310,9 +247,14 @@ function DemandAnalysis() {
           <Button variant="outlined" startIcon={<Download />}>
             Export
           </Button>
+          <Button variant="contained" onClick={handleAdd}>
+            Add Product Forecast
+          </Button>
         </Box>
       </Box>
 
+      {/* Error Message */}
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       {/* Loading Indicator */}
       {isLoading && <LinearProgress sx={{ mb: 2 }} />}
 
@@ -338,50 +280,7 @@ function DemandAnalysis() {
       </Box>
 
       {/* Metrics Cards */}
-     {/* Metrics Cards */}
-<Grid container spacing={3} mb={3}>
-  <Grid item xs={12} sm={6} md={3}>
-    <DemandMetricCard
-      title="Total Demand"
-      value={metrics.totalDemand.toLocaleString()}
-      change={changes.demand}
-      icon={<Analytics />}
-      color="primary"
-      subtitle="Units this month"
-    />
-  </Grid>
-  <Grid item xs={12} sm={6} md={3}>
-    <DemandMetricCard
-      title="Forecast Accuracy"
-      value={`${metrics.forecastAccuracy}%`}
-      change={changes.accuracy}
-      icon={<ShowChart />}
-      color="success"
-      subtitle="Average accuracy"
-    />
-  </Grid>
-  <Grid item xs={12} sm={6} md={3}>
-    <DemandMetricCard
-      title="Demand Growth"
-      value={`${metrics.demandGrowth}%`}
-      change={changes.growth}
-      icon={<TrendingUp />}
-      color="info"
-      subtitle="Month over month"
-    />
-  </Grid>
-  <Grid item xs={12} sm={6} md={3}>
-    <DemandMetricCard
-      title="Seasonal Index"
-      value={metrics.seasonalIndex.toFixed(2)}
-      change={changes.seasonal}
-      icon={<CalendarToday />}
-      color="secondary"
-      subtitle="Current period"
-    />
-  </Grid>
-</Grid>
-
+      {/* ...existing code... */}
 
       {/* Tabs Section */}
       <Paper sx={{ width: '100%' }}>
@@ -409,17 +308,17 @@ function DemandAnalysis() {
                   <RechartsTooltip />
                   <Legend />
                   <Bar dataKey="actual" fill="#0071ce" name="Actual Demand" />
-                  <Line 
-                    type="monotone" 
-                    dataKey="forecast" 
-                    stroke="#ffc220" 
+                  <Line
+                    type="monotone"
+                    dataKey="forecast"
+                    stroke="#ffc220"
                     strokeWidth={3}
                     name="Forecasted Demand"
                   />
-                  <Area 
-                    type="monotone" 
-                    dataKey="confidence" 
-                    fill="#e3f2fd" 
+                  <Area
+                    type="monotone"
+                    dataKey="confidence"
+                    fill="#e3f2fd"
                     fillOpacity={0.3}
                     name="Confidence Level"
                   />
@@ -447,7 +346,6 @@ function DemandAnalysis() {
               </Select>
             </FormControl>
           </Box>
-          
           <TableContainer>
             <Table>
               <TableHead>
@@ -458,16 +356,41 @@ function DemandAnalysis() {
                   <TableCell align="right">Forecasted Demand</TableCell>
                   <TableCell align="center">Accuracy</TableCell>
                   <TableCell align="center">Trend</TableCell>
+                  <TableCell align="center">Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {filteredProducts.map((product) => (
-                  <ForecastAccuracy
-                    key={product.id}
-                    product={product}
-                    accuracy={product.accuracy}
-                    trend={product.trend}
-                  />
+                  <TableRow hover key={product._id || product.id}>
+                    <TableCell>{product.name}</TableCell>
+                    <TableCell>{product.category}</TableCell>
+                    <TableCell align="right">{product.currentDemand?.toLocaleString?.() ?? product.currentDemand}</TableCell>
+                    <TableCell align="right">{product.forecastedDemand?.toLocaleString?.() ?? product.forecastedDemand}</TableCell>
+                    <TableCell align="center">
+                      <Chip
+                        label={`${product.accuracy}%`}
+                        color={product.accuracy >= 90 ? 'success' : product.accuracy >= 75 ? 'warning' : 'error'}
+                        size="small"
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      {product.trend === 'up' ? (
+                        <TrendingUp color="success" />
+                      ) : product.trend === 'down' ? (
+                        <TrendingDown color="error" />
+                      ) : (
+                        <div>-</div>
+                      )}
+                    </TableCell>
+                    <TableCell align="center">
+                      <Button size="small" onClick={() => handleEdit(product)}>
+                        Edit
+                      </Button>
+                      <Button size="small" color="error" onClick={() => handleDelete(product._id || product.id)}>
+                        Delete
+                      </Button>
+                    </TableCell>
+                  </TableRow>
                 ))}
               </TableBody>
             </Table>
@@ -486,36 +409,36 @@ function DemandAnalysis() {
               <YAxis />
               <RechartsTooltip />
               <Legend />
-              <Area 
-                type="monotone" 
-                dataKey="electronics" 
-                stackId="1" 
-                stroke="#0071ce" 
-                fill="#0071ce" 
+              <Area
+                type="monotone"
+                dataKey="electronics"
+                stackId="1"
+                stroke="#0071ce"
+                fill="#0071ce"
                 name="Electronics"
               />
-              <Area 
-                type="monotone" 
-                dataKey="clothing" 
-                stackId="1" 
-                stroke="#ffc220" 
-                fill="#ffc220" 
+              <Area
+                type="monotone"
+                dataKey="clothing"
+                stackId="1"
+                stroke="#ffc220"
+                fill="#ffc220"
                 name="Clothing"
               />
-              <Area 
-                type="monotone" 
-                dataKey="homeGarden" 
-                stackId="1" 
-                stroke="#4caf50" 
-                fill="#4caf50" 
+              <Area
+                type="monotone"
+                dataKey="homeGarden"
+                stackId="1"
+                stroke="#4caf50"
+                fill="#4caf50"
                 name="Home & Garden"
               />
-              <Area 
-                type="monotone" 
-                dataKey="sports" 
-                stackId="1" 
-                stroke="#ff9800" 
-                fill="#ff9800" 
+              <Area
+                type="monotone"
+                dataKey="sports"
+                stackId="1"
+                stroke="#ff9800"
+                fill="#ff9800"
                 name="Sports"
               />
             </AreaChart>
@@ -541,7 +464,7 @@ function DemandAnalysis() {
                       Accuracy: 87%
                     </Typography>
                   </Box>
-                  
+
                   <Box mb={2}>
                     <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
                       <Typography variant="body2">Neural Network (LSTM)</Typography>
@@ -552,7 +475,7 @@ function DemandAnalysis() {
                       Accuracy: 92%
                     </Typography>
                   </Box>
-                  
+
                   <Box mb={2}>
                     <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
                       <Typography variant="body2">Random Forest</Typography>
@@ -566,7 +489,7 @@ function DemandAnalysis() {
                 </CardContent>
               </Card>
             </Grid>
-            
+
             <Grid item xs={12} md={6}>
               <Card>
                 <CardContent>
@@ -581,7 +504,7 @@ function DemandAnalysis() {
                       2.3%
                     </Typography>
                   </Box>
-                  
+
                   <Box mb={2}>
                     <Typography variant="body2" color="textSecondary">
                       Root Mean Square Error (RMSE)
@@ -590,7 +513,7 @@ function DemandAnalysis() {
                       3.1%
                     </Typography>
                   </Box>
-                  
+
                   <Box mb={2}>
                     <Typography variant="body2" color="textSecondary">
                       Mean Absolute Percentage Error (MAPE)
@@ -599,7 +522,7 @@ function DemandAnalysis() {
                       12.5%
                     </Typography>
                   </Box>
-                  
+
                   <Button variant="outlined" fullWidth sx={{ mt: 2 }}>
                     Retrain Models
                   </Button>
@@ -609,6 +532,15 @@ function DemandAnalysis() {
           </Grid>
         </TabPanel>
       </Paper>
+
+      {/* Add/Edit Dialog */}
+      <AddEditForecastDialog
+        open={dialogOpen}
+        onClose={handleDialogClose}
+        onSave={handleDialogSave}
+        initialData={editData}
+        loading={dialogLoading}
+      />
     </Box>
   );
 }

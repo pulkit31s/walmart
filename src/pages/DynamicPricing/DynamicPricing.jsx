@@ -1,5 +1,6 @@
 // src/pages/DynamicPricing/DynamicPricing.jsx
 import React, { useState, useEffect } from 'react';
+import { fetchPricing, addPricing } from './pricingApi';
 import {
   Box,
   Typography,
@@ -334,171 +335,34 @@ function DynamicPricing() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [optimizationOpen, setOptimizationOpen] = useState(false);
 
-  const [pricingData, setPricingData] = useState({
-    metrics: {
-      totalProducts: 1250,
-      autoPricingEnabled: 890,
-      avgMarginImprovement: 15.3,
-      revenueIncrease: 8.7,
-    },
-    changes: {
-      products: 5.2,
-      autoPricing: 12.8,
-      margin: 23.5,
-      revenue: 18.9,
-    },
-    products: [
-      {
-        id: 1,
-        name: 'Samsung 55" Smart TV',
-        sku: 'ELE001',
-        category: 'Electronics',
-        currentPrice: 599.99,
-        originalPrice: 649.99,
-        suggestedPrice: 579.99,
-        priceChange: -3.3,
-        competitorAvg: 585.00,
-        competitiveStatus: 'Competitive',
-        autoPricing: true,
-        demandScore: 85,
-      },
-      {
-        id: 2,
-        name: 'Nike Air Max Shoes',
-        sku: 'CLO001',
-        category: 'Clothing',
-        currentPrice: 129.99,
-        originalPrice: 139.99,
-        suggestedPrice: 134.99,
-        priceChange: 3.8,
-        competitorAvg: 132.00,
-        competitiveStatus: 'Above Market',
-        autoPricing: false,
-        demandScore: 78,
-      },
-      {
-        id: 3,
-        name: 'Dyson V11 Vacuum',
-        sku: 'HOM001',
-        category: 'Home & Garden',
-        currentPrice: 449.99,
-        originalPrice: 499.99,
-        suggestedPrice: 429.99,
-        priceChange: -4.4,
-        competitorAvg: 435.00,
-        competitiveStatus: 'Below Market',
-        autoPricing: true,
-        demandScore: 92,
-      },
-      {
-        id: 4,
-        name: 'iPhone 15 Pro',
-        sku: 'ELE002',
-        category: 'Electronics',
-        currentPrice: 999.99,
-        originalPrice: 1099.99,
-        suggestedPrice: 979.99,
-        priceChange: -2.0,
-        competitorAvg: 995.00,
-        competitiveStatus: 'Competitive',
-        autoPricing: true,
-        demandScore: 96,
-      },
-      {
-        id: 5,
-        name: 'Adidas Running Shoes',
-        sku: 'CLO002',
-        category: 'Clothing',
-        currentPrice: 89.99,
-        originalPrice: 99.99,
-        suggestedPrice: 94.99,
-        priceChange: 5.6,
-        competitorAvg: 92.00,
-        competitiveStatus: 'Above Market',
-        autoPricing: false,
-        demandScore: 73,
-      },
-    ],
-    priceHistory: [
-      { date: 'Jan', avgPrice: 125.50, competitorPrice: 128.00, margin: 22.5 },
-      { date: 'Feb', avgPrice: 123.75, competitorPrice: 126.50, margin: 23.1 },
-      { date: 'Mar', avgPrice: 127.25, competitorPrice: 129.75, margin: 21.8 },
-      { date: 'Apr', avgPrice: 129.50, competitorPrice: 131.25, margin: 24.2 },
-      { date: 'May', avgPrice: 126.75, competitorPrice: 128.50, margin: 25.6 },
-      { date: 'Jun', avgPrice: 131.25, competitorPrice: 133.00, margin: 26.3 },
-    ],
-    competitorAnalysis: [
-      { competitor: 'Amazon', avgPrice: 128.50, priceGap: -2.3, marketShare: 35 },
-      { competitor: 'Target', avgPrice: 132.75, priceGap: 1.2, marketShare: 18 },
-      { competitor: 'Best Buy', avgPrice: 125.25, priceGap: -4.8, marketShare: 15 },
-      { competitor: 'Costco', avgPrice: 119.99, priceGap: -8.9, marketShare: 12 },
-      { competitor: 'Home Depot', avgPrice: 134.50, priceGap: 3.1, marketShare: 10 },
-    ],
-    pricingRules: [
-      {
-        id: 1,
-        name: 'Competitive Pricing',
-        description: 'Match competitor prices within 5% range',
-        status: 'Active',
-        productsAffected: 450,
-      },
-      {
-        id: 2,
-        name: 'Demand-Based Pricing',
-        description: 'Adjust prices based on demand fluctuations',
-        status: 'Active',
-        productsAffected: 320,
-      },
-      {
-        id: 3,
-        name: 'Inventory Clearance',
-        description: 'Reduce prices for overstocked items',
-        status: 'Paused',
-        productsAffected: 120,
-      },
-      {
-        id: 4,
-        name: 'Premium Product Strategy',
-        description: 'Maintain premium pricing for high-end products',
-        status: 'Active',
-        productsAffected: 85,
-      },
-    ],
-    alerts: [
-      {
-        type: 'warning',
-        message: '15 products have competitor prices 10% lower than current pricing',
-        action: 'Review Pricing',
-      },
-      {
-        type: 'info',
-        message: 'Seasonal pricing adjustment recommended for 45 products',
-        action: 'Apply Changes',
-      },
-      {
-        type: 'success',
-        message: 'Auto-pricing generated $12,500 additional revenue this week',
-        action: 'View Details',
-      },
-    ],
-  });
+  const [pricingData, setPricingData] = useState(null);
+  const [error, setError] = useState(null);
 
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
 
-  const handleRefreshData = () => {
+  // Fetch pricing data from backend
+  const loadPricingData = async () => {
     setIsLoading(true);
-    setTimeout(() => {
-      setPricingData(prev => ({
-        ...prev,
-        metrics: {
-          ...prev.metrics,
-          avgMarginImprovement: prev.metrics.avgMarginImprovement + Math.random() * 2 - 1,
-        },
-      }));
+    setError(null);
+    try {
+      const data = await fetchPricing();
+      setPricingData(data);
+    } catch (err) {
+      setError('Failed to load pricing data');
+    } finally {
       setIsLoading(false);
-    }, 2000);
+    }
+  };
+
+  useEffect(() => {
+    loadPricingData();
+    // eslint-disable-next-line
+  }, []);
+
+  const handleRefreshData = () => {
+    loadPricingData();
   };
 
   const handleViewProduct = (product) => {
@@ -510,26 +374,38 @@ function DynamicPricing() {
     console.log('Edit product pricing:', product);
   };
 
-  const handleApplyOptimizedPrice = (productId, newPrice) => {
-    setPricingData(prev => ({
-      ...prev,
-      products: prev.products.map(product =>
-        product.id === productId
-          ? { ...product, currentPrice: newPrice }
-          : product
-      ),
-    }));
+  const handleApplyOptimizedPrice = async (productId, newPrice) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      // Find the product to update
+      const product = pricingData.products.find(p => p.id === productId);
+      if (!product) throw new Error('Product not found');
+      const updatedProduct = { ...product, currentPrice: newPrice };
+      await addPricing(updatedProduct);
+      await loadPricingData();
+    } catch (err) {
+      setError('Failed to update price');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const filteredProducts = pricingData.products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.sku.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !categoryFilter || product.category === categoryFilter;
-    
-    return matchesSearch && matchesCategory;
-  });
+  const filteredProducts = pricingData && pricingData.products
+    ? pricingData.products.filter(product => {
+      const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.sku.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory = !categoryFilter || product.category === categoryFilter;
+      return matchesSearch && matchesCategory;
+    })
+    : [];
 
-  const { metrics, changes, priceHistory, competitorAnalysis, pricingRules, alerts } = pricingData;
+  const metrics = pricingData?.metrics || {};
+  const changes = pricingData?.changes || {};
+  const priceHistory = pricingData?.priceHistory || [];
+  const competitorAnalysis = pricingData?.competitorAnalysis || [];
+  const pricingRules = pricingData?.pricingRules || [];
+  const alerts = pricingData?.alerts || [];
 
   return (
     <Box>
@@ -562,6 +438,8 @@ function DynamicPricing() {
         </Box>
       </Box>
 
+      {/* Error Message */}
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       {/* Loading Indicator */}
       {isLoading && <LinearProgress sx={{ mb: 2 }} />}
 
@@ -796,7 +674,7 @@ function DynamicPricing() {
               Create Rule
             </Button>
           </Box>
-          
+
           <Grid container spacing={3}>
             {pricingRules.map((rule) => (
               <Grid item xs={12} md={6} key={rule.id}>
