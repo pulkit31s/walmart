@@ -469,8 +469,8 @@ function DynamicPricing() {
         <Grid item xs={12} sm={6} md={3}>
           <PricingMetricCard
             title="Total Products"
-            value={metrics.totalProducts.toLocaleString()}
-            change={changes.products}
+            value={(metrics.totalProducts != null ? metrics.totalProducts : 0).toLocaleString()}
+            change={changes.products != null ? changes.products : 0}
             icon={<LocalOffer />}
             color="primary"
             subtitle="Under pricing management"
@@ -479,8 +479,8 @@ function DynamicPricing() {
         <Grid item xs={12} sm={6} md={3}>
           <PricingMetricCard
             title="Auto-Pricing Enabled"
-            value={metrics.autoPricingEnabled.toLocaleString()}
-            change={changes.autoPricing}
+            value={(metrics.autoPricingEnabled != null ? metrics.autoPricingEnabled : 0).toLocaleString()}
+            change={changes.autoPricing != null ? changes.autoPricing : 0}
             icon={<AutoMode />}
             color="success"
             subtitle="Automated pricing rules"
@@ -489,8 +489,8 @@ function DynamicPricing() {
         <Grid item xs={12} sm={6} md={3}>
           <PricingMetricCard
             title="Margin Improvement"
-            value={`${metrics.avgMarginImprovement}%`}
-            change={changes.margin}
+            value={`${metrics.avgMarginImprovement != null ? metrics.avgMarginImprovement : 0}%`}
+            change={changes.margin != null ? changes.margin : 0}
             icon={<TrendingUp />}
             color="info"
             subtitle="Average improvement"
@@ -499,8 +499,8 @@ function DynamicPricing() {
         <Grid item xs={12} sm={6} md={3}>
           <PricingMetricCard
             title="Revenue Increase"
-            value={`${metrics.revenueIncrease}%`}
-            change={changes.revenue}
+            value={`${metrics.revenueIncrease != null ? metrics.revenueIncrease : 0}%`}
+            change={changes.revenue != null ? changes.revenue : 0}
             icon={<MonetizationOn />}
             color="secondary"
             subtitle="From dynamic pricing"

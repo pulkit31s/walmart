@@ -70,10 +70,42 @@ import {
   Legend,
   ScatterChart,
   Scatter,
+  PieChart,
+  Pie,
+  Cell,
 } from 'recharts';
 import { fetchSuppliers, addSupplier, updateSupplier, deleteSupplier } from './supplierApi';
 
-// ...rest of the file remains unchanged...
+// SupplierMetricCard component
+function SupplierMetricCard({ title, value, change, icon, color, subtitle }) {
+  return (
+    <Card>
+      <CardContent>
+        <Box display="flex" alignItems="center" mb={1}>
+          <Box mr={2}>{icon}</Box>
+          <Box>
+            <Typography variant="subtitle2" color="textSecondary">
+              {title}
+            </Typography>
+            <Typography variant="h5" color={color + ".main"}>
+              {value}
+            </Typography>
+          </Box>
+        </Box>
+        {subtitle && (
+          <Typography variant="caption" color="textSecondary">
+            {subtitle}
+          </Typography>
+        )}
+        {change !== undefined && (
+          <Typography variant="caption" color={change >= 0 ? "success.main" : "error.main"}>
+            {change >= 0 ? "+" : ""}{change}
+          </Typography>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
 
 // Supplier Row Component
 const SupplierRow = ({ supplier, onEdit, onView, onDelete }) => {
@@ -538,7 +570,7 @@ function SupplierPerformance() {
         <Grid item xs={12} sm={6} md={3}>
           <SupplierMetricCard
             title="Avg Quality Score"
-            value={`${metrics.avgQualityScore.toFixed(1)}%`}
+            value={`${metrics.avgQualityScore?.toFixed ? metrics.avgQualityScore.toFixed(1) : metrics.avgQualityScore}%`}
             change={changes.quality}
             icon={<Star />}
             color="secondary"

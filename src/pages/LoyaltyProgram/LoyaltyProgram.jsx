@@ -459,8 +459,8 @@ function LoyaltyProgram() {
         <Grid item xs={12} sm={6} md={3}>
           <LoyaltyMetricCard
             title="Total Members"
-            value={metrics.totalMembers.toLocaleString()}
-            change={changes.members}
+            value={(metrics.totalMembers != null ? metrics.totalMembers : 0).toLocaleString()}
+            change={changes.members != null ? changes.members : 0}
             icon={<People />}
             color="primary"
             subtitle="Registered users"
@@ -469,8 +469,8 @@ function LoyaltyProgram() {
         <Grid item xs={12} sm={6} md={3}>
           <LoyaltyMetricCard
             title="Active Members"
-            value={metrics.activeMembers.toLocaleString()}
-            change={changes.active}
+            value={(metrics.activeMembers != null ? metrics.activeMembers : 0).toLocaleString()}
+            change={changes.active != null ? changes.active : 0}
             icon={<TrendingUp />}
             color="success"
             subtitle="Last 30 days"
@@ -479,8 +479,8 @@ function LoyaltyProgram() {
         <Grid item xs={12} sm={6} md={3}>
           <LoyaltyMetricCard
             title="Avg Points"
-            value={metrics.avgPointsPerMember.toLocaleString()}
-            change={changes.points}
+            value={(metrics.avgPointsPerMember != null ? metrics.avgPointsPerMember : 0).toLocaleString()}
+            change={changes.points != null ? changes.points : 0}
             icon={<Stars />}
             color="info"
             subtitle="Per member"
