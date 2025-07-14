@@ -1,0 +1,183 @@
+{
+  "metadata": {
+    "data_period": "2024-01-01 to 2025-07-14",
+    "total_transactions": 2847592,
+    "total_revenue": 24500000000,
+    "last_updated": "2025-07-14T09:56:23Z",
+    "session_user": "vkhare2909"
+  },
+  "monthly_summary": [
+    {
+      "month": "2024-01",
+      "revenue": 1850000000,
+      "transactions": 187435,
+      "avg_basket_value": 9870,
+      "top_category": "Electronics",
+      "growth_rate": 8.2
+    },
+    {
+      "month": "2024-02",
+      "revenue": 1920000000,
+      "transactions": 195423,
+      "avg_basket_value": 9825,
+      "top_category": "Groceries",
+      "growth_rate": 3.8
+    },
+    {
+      "month": "2024-03",
+      "revenue": 2100000000,
+      "transactions": 212847,
+      "avg_basket_value": 9865,
+      "top_category": "Clothing & Fashion",
+      "growth_rate": 9.4
+    },
+    {
+      "month": "2024-04",
+      "revenue": 2250000000,
+      "transactions": 228934,
+      "avg_basket_value": 9830,
+      "top_category": "Electronics",
+      "growth_rate": 7.1
+    },
+    {
+      "month": "2024-05",
+      "revenue": 2380000000,
+      "transactions": 241256,
+      "avg_basket_value": 9865,
+      "top_category": "Electronics",
+      "growth_rate": 5.8
+    },
+    {
+      "month": "2024-06",
+      "revenue": 2150000000,
+      "transactions": 218742,
+      "avg_basket_value": 9825,
+      "top_category": "Sports & Outdoors",
+      "growth_rate": -9.7
+    },
+    {
+      "month": "2024-07",
+      "revenue": 2050000000,
+      "transactions": 208945,
+      "avg_basket_value": 9810,
+      "top_category": "Groceries",
+      "growth_rate": -4.7
+    },
+    {
+      "month": "2024-08",
+      "revenue": 2200000000,
+      "transactions": 223891,
+      "avg_basket_value": 9825,
+      "top_category": "Electronics",
+      "growth_rate": 7.3
+    },
+    {
+      "month": "2024-09",
+      "revenue": 2420000000,
+      "transactions": 246123,
+      "avg_basket_value": 9835,
+      "top_category": "Electronics",
+      "growth_rate": 10.0
+    },
+    {
+      "month": "2024-10",
+      "revenue": 2680000000,
+      "transactions": 272456,
+      "avg_basket_value": 9840,
+      "top_category": "Clothing & Fashion",
+      "growth_rate": 10.7
+    },
+    {
+      "month": "2024-11",
+      "revenue": 2950000000,
+      "transactions": 299678,
+      "avg_basket_value": 9845,
+      "top_category": "Electronics",
+      "growth_rate": 10.1
+    },
+    {
+      "month": "2024-12",
+      "revenue": 3200000000,
+      "transactions": 324891,
+      "avg_basket_value": 9850,
+      "top_category": "Electronics",
+      "growth_rate": 8.5
+    }
+  ],
+  "daily_sales": [
+    {
+      "date": "2025-07-14",
+      "revenue": 125000000,
+      "transactions": 12689,
+      "avg_basket_value": 9850,
+      "peak_hour": "19:00",
+      "day_type": "weekday"
+    },
+    {
+      "date": "2025-07-13",
+      "revenue": 142000000,
+      "transactions": 14423,
+      "avg_basket_value": 9845,
+      "peak_hour": "20:00",
+      "day_type": "weekend"
+    },
+    {
+      "date": "2025-07-12",
+      "revenue": 138000000,
+      "transactions": 14012,
+      "avg_basket_value": 9850,
+      "peak_hour": "19:30",
+      "day_type": "weekend"
+    },
+    {
+      "date": "2025-07-11",
+      "revenue": 119000000,
+      "transactions": 12089,
+      "avg_basket_value": 9845,
+      "peak_hour": "18:00",
+      "day_type": "weekday"
+    },
+    {
+      "date": "2025-07-10",
+      "revenue": 121000000,
+      "transactions": 12289,
+      "avg_basket_value": 9850,
+      "peak_hour": "19:00",
+      "day_type": "weekday"
+    }
+  ],
+  "regional_performance": [
+    {
+      "region": "north",
+      "total_revenue": 7350000000,
+      "total_stores": 125,
+      "avg_revenue_per_store": 58800000,
+      "growth_rate": 12.3,
+      "top_category": "Electronics"
+    },
+    {
+      "region": "south",
+      "total_revenue": 6890000000,
+      "total_stores": 140,
+      "avg_revenue_per_store": 49214285,
+      "growth_rate": 10.8,
+      "top_category": "Electronics"
+    },
+    {
+      "region": "west",
+      "total_revenue": 7680000000,
+      "total_stores": 160,
+      "avg_revenue_per_store": 48000000,
+      "growth_rate": 15.1,
+      "top_category": "Clothing & Fashion"
+    },
+    {
+      "region": "east",
+      "total_revenue": 2580000000,
+      "total_stores": 75,
+      "avg_revenue_per_store": 34400000,
+      "growth_rate": 8.9,
+      "top_category": "Groceries"
+    }
+  ]
+}

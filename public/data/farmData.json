@@ -1,0 +1,136 @@
+{
+  "performanceMetrics": [
+    {
+      "title": "Crop Yield",
+      "value": "18.5 tons",
+      "change": 12,
+      "icon": "sprout"
+    },
+    {
+      "title": "Weather Score",
+      "value": "86%",
+      "change": -2,
+      "icon": "sun"
+    },
+    {
+      "title": "Water Usage",
+      "value": "28.3 L/m²",
+      "change": -14,
+      "icon": "droplets"
+    }
+  ],
+  "crops": [
+    {
+      "name": "Rice (IR-8)",
+      "variety": "High-Yield Variety",
+      "health": 92,
+      "growthStage": "Flowering",
+      "daysToHarvest": 45,
+      "area": 5.8,
+      "expectedYield": 24.3,
+      "action": "Schedule fertilization"
+    },
+    {
+      "name": "Wheat",
+      "variety": "Punjab Gold",
+      "health": 87,
+      "growthStage": "Grain Filling",
+      "daysToHarvest": 28,
+      "area": 4.2,
+      "expectedYield": 16.5,
+      "action": "Monitor for pests"
+    },
+    {
+      "name": "Soybean",
+      "variety": "JS-335",
+      "health": 78,
+      "growthStage": "Pod Development",
+      "daysToHarvest": 32,
+      "area": 3.0,
+      "expectedYield": 8.7,
+      "action": "Irrigation needed"
+    },
+    {
+      "name": "Mustard",
+      "variety": "Pusa Bold",
+      "health": 95,
+      "growthStage": "Flowering",
+      "daysToHarvest": 40,
+      "area": 2.5,
+      "expectedYield": 5.2,
+      "action": "Apply micronutrients"
+    }
+  ],
+  "weatherForecast": [
+    {
+      "day": "Today",
+      "condition": "Sunny",
+      "temperature": 32,
+      "precipitation": 0
+    },
+    {
+      "day": "Tomorrow",
+      "condition": "Cloudy",
+      "temperature": 30,
+      "precipitation": 10
+    },
+    {
+      "day": "Wednesday",
+      "condition": "Rainy",
+      "temperature": 28,
+      "precipitation": 45
+    },
+    {
+      "day": "Thursday",
+      "condition": "Sunny",
+      "temperature": 31,
+      "precipitation": 0
+    },
+    {
+      "day": "Friday",
+      "condition": "Sunny",
+      "temperature": 33,
+      "precipitation": 0
+    }
+  ],
+  "tasks": [
+    {
+      "title": "Apply NPK fertilizer to rice fields",
+      "description": "Apply 150kg/ha nitrogen, 50kg/ha phosphorus, and 50kg/ha potassium",
+      "priority": "High Priority",
+      "dueTime": "Today, 4:00 PM"
+    },
+    {
+      "title": "Inspect wheat field section B for rust",
+      "description": "Check for yellow rust symptoms near irrigation channel",
+      "priority": "Medium Priority",
+      "dueTime": "Today, 2:00 PM"
+    },
+    {
+      "title": "Calibrate irrigation system",
+      "description": "Prepare for tomorrow's scheduled irrigation cycle",
+      "priority": "Low Priority",
+      "dueTime": "Today, 5:00 PM"
+    }
+  ],
+  "events": [
+    {
+      "title": "Rice Planting - Block C",
+      "description": "Prepare seedlings and equipment for transplanting",
+      "type": "Planting",
+      "date": "April 20, 2025"
+    },
+    {
+      "title": "Local Farmers Association Meeting",
+      "description": "Monthly meeting to discuss market prices and weather outlook",
+      "type": "Meeting",
+      "date": "April 25, 2025"
+    },
+    {
+      "title": "Equipment Maintenance",
+      "description": "Schedule maintenance for tractor and harvester",
+      "type": "Maintenance",
+      "date": "April 30, 2025"
+    }
+  ]
+}

@@ -1,0 +1,323 @@
+{
+  "metadata": {
+    "model_version": "v2.1.4",
+    "model_accuracy": 87.6,
+    "last_trained": "2025-07-10T14:30:00Z",
+    "prediction_horizon": "14_days",
+    "confidence_threshold": 0.75,
+    "data_points_used": 125000,
+    "last_updated": "2025-07-14T09:56:23Z",
+    "session_user": "vkhare2909"
+  },
+  "store_predictions": [
+    {
+      "id": "PRED001",
+      "store_id": "WM001",
+      "store_name": "Walmart Supercenter Gurgaon",
+      "prediction_type": "stockout_risk",
+      "predicted_event": "AC Units stockout imminent",
+      "confidence": 0.92,
+      "predicted_stockout_date": "2025-07-17",
+      "estimated_lost_revenue": 8500000,
+      "action_priority": "immediate",
+      "product_forecasts": [
+        {
+          "product_id": "PROD001",
+          "product_name": "LG AC 1.5 Ton Inverter",
+          "current_stock": 12,
+          "predicted_demand": 45,
+          "reorder_recommendation": 150
+        }
+      ],
+      "factors": ["seasonal_trend", "weather", "promotional_impact"],
+      "estimated_impact": {
+        "revenue_at_risk": 8500000,
+        "customer_impact": "high",
+        "supplier_impact": "medium"
+      }
+    },
+    {
+      "id": "PRED002",
+      "store_id": "WM002",
+      "store_name": "Walmart Mumbai Central",
+      "prediction_type": "demand_surge",
+      "predicted_event": "Electronics demand surge",
+      "confidence": 0.89,
+      "predicted_surge_date": "2025-07-20",
+      "estimated_revenue_gain": 12000000,
+      "action_priority": "high",
+      "product_forecasts": [
+        {
+          "product_id": "PROD002",
+          "product_name": "Samsung Galaxy S24 Ultra",
+          "current_stock": 35,
+          "predicted_demand": 85,
+          "reorder_recommendation": 100
+        },
+        {
+          "product_id": "PROD010",
+          "product_name": "iPhone 15 Pro Max",
+          "current_stock": 22,
+          "predicted_demand": 48,
+          "reorder_recommendation": 60
+        }
+      ],
+      "factors": ["festival_season", "competitor_promotion", "market_trend"],
+      "estimated_impact": {
+        "revenue_opportunity": 12000000,
+        "market_share_gain": "medium",
+        "inventory_requirement": "high"
+      }
+    },
+    {
+      "id": "PRED003",
+      "store_id": "WM003",
+      "store_name": "Walmart Bangalore Electronic City",
+      "prediction_type": "overstock_risk",
+      "predicted_event": "Winter clothing overstock",
+      "confidence": 0.84,
+      "predicted_overstock_date": "2025-07-25",
+      "estimated_carrying_cost": 3200000,
+      "action_priority": "medium",
+      "product_forecasts": [
+        {
+          "product_id": "PROD004",
+          "product_name": "Nike Air Max Shoes",
+          "current_stock": 285,
+          "predicted_demand": 45,
+          "clearance_recommendation": 150
+        }
+      ],
+      "factors": ["seasonal_decline", "inventory_buildup"],
+      "estimated_impact": {
+        "carrying_cost": 3200000,
+        "markdown_requirement": "20-30%",
+        "storage_impact": "medium"
+      }
+    },
+    {
+      "id": "PRED004",
+      "store_id": "WM005",
+      "store_name": "Walmart Delhi Connaught Place",
+      "prediction_type": "supplier_delay",
+      "predicted_event": "Grocery supplier delay",
+      "confidence": 0.78,
+      "predicted_delay_start": "2025-07-19",
+      "estimated_lost_revenue": 4800000,
+      "action_priority": "high",
+      "product_forecasts": [
+        {
+          "product_id": "PROD003",
+          "product_name": "Basmati Rice 5kg",
+          "current_stock": 450,
+          "predicted_demand": 780,
+          "alternative_supplier_needed": true
+        }
+      ],
+      "factors": ["monsoon_transport", "supplier_capacity"],
+      "estimated_impact": {
+        "revenue_at_risk": 4800000,
+        "customer_satisfaction": "medium",
+        "alternative_sourcing_cost": 240000
+      }
+    },
+    {
+      "id": "PRED005",
+      "store_id": "WM006",
+      "store_name": "Walmart Kolkata Park Street",
+      "prediction_type": "performance_decline",
+      "predicted_event": "Overall performance decline",
+      "confidence": 0.81,
+      "predicted_impact_date": "2025-07-22",
+      "estimated_revenue_loss": 6500000,
+      "action_priority": "immediate",
+      "factors": ["inventory_management", "stockout_frequency", "competition"],
+      "estimated_impact": {
+        "revenue_loss": 6500000,
+        "health_score_drop": 12,
+        "customer_retention": "at_risk"
+      }
+    },
+    {
+      "id": "PRED006",
+      "store_id": "WM007",
+      "store_name": "Walmart Pune Baner",
+      "prediction_type": "promotional_opportunity",
+      "predicted_event": "Back-to-school promotion success",
+      "confidence": 0.86,
+      "predicted_opportunity_date": "2025-07-28",
+      "estimated_revenue_gain": 9200000,
+      "action_priority": "medium",
+      "product_forecasts": [
+        {
+          "product_id": "PROD009",
+          "product_name": "Baby Diapers Pack",
+          "current_stock": 420,
+          "predicted_demand": 680,
+          "promotional_stock_needed": 800
+        }
+      ],
+      "factors": ["seasonal_trend", "demographic_analysis"],
+      "estimated_impact": {
+        "revenue_opportunity": 9200000,
+        "margin_improvement": "15%",
+        "customer_acquisition": "high"
+      }
+    },
+    {
+      "id": "PRED007",
+      "store_id": "WM008",
+      "store_name": "Walmart Hyderabad Hitech City",
+      "prediction_type": "inventory_optimization",
+      "predicted_event": "Kitchen appliances rebalancing",
+      "confidence": 0.83,
+      "predicted_optimization_date": "2025-07-21",
+      "estimated_efficiency_gain": 2800000,
+      "action_priority": "medium",
+      "product_forecasts": [
+        {
+          "product_id": "PROD005",
+          "product_name": "Pressure Cooker 5L",
+          "current_stock": 320,
+          "optimal_stock_level": 180,
+          "rebalancing_needed": true
+        }
+      ],
+      "factors": ["demand_pattern_change", "seasonal_adjustment"],
+      "estimated_impact": {
+        "efficiency_gain": 2800000,
+        "working_capital_release": 1400000,
+        "turnover_improvement": "0.8x"
+      }
+    },
+    {
+      "id": "PRED008",
+      "store_id": "WM009",
+      "store_name": "Walmart Ahmedabad SG Highway",
+      "prediction_type": "quality_issue_risk",
+      "predicted_event": "Beauty products quality alert",
+      "confidence": 0.75,
+      "predicted_issue_date": "2025-07-24",
+      "estimated_impact_cost": 1800000,
+      "action_priority": "high",
+      "product_forecasts": [
+        {
+          "product_id": "PROD006",
+          "product_name": "Himalaya Face Wash",
+          "current_stock": 650,
+          "quality_check_needed": true,
+          "potential_recall_units": 200
+        }
+      ],
+      "factors": ["supplier_quality_trend", "customer_feedback"],
+      "estimated_impact": {
+        "financial_impact": 1800000,
+        "brand_reputation": "medium_risk",
+        "regulatory_compliance": "required"
+      }
+    },
+    {
+      "id": "PRED009",
+      "store_id": "WM010",
+      "store_name": "Walmart Jaipur Malviya Nagar",
+      "prediction_type": "market_expansion",
+      "predicted_event": "Local market penetration opportunity",
+      "confidence": 0.79,
+      "predicted_opportunity_date": "2025-08-01",
+      "estimated_revenue_potential": 15000000,
+      "action_priority": "low",
+      "factors": ["demographic_shift", "competitor_weakness", "local_events"],
+      "estimated_impact": {
+        "revenue_potential": 15000000,
+        "market_share_gain": "8-12%",
+        "investment_required": 3000000
+      }
+    },
+    {
+      "id": "PRED010",
+      "store_id": "WM004",
+      "store_name": "Walmart Chennai OMR",
+      "prediction_type": "weather_impact",
+      "predicted_event": "Monsoon preparation required",
+      "confidence": 0.88,
+      "predicted_weather_impact": "2025-07-26",
+      "estimated_preparation_cost": 950000,
+      "action_priority": "medium",
+      "product_forecasts": [
+        {
+          "product_id": "PROD007",
+          "product_name": "Cricket Bat Spartan",
+          "current_stock": 95,
+          "weather_adjusted_demand": 25,
+          "storage_protection_needed": true
+        }
+      ],
+      "factors": ["monsoon_forecast", "historical_weather_impact"],
+      "estimated_impact": {
+        "preparation_cost": 950000,
+        "damage_prevention": 4200000,
+        "operational_continuity": "ensured"
+      }
+    }
+  ],
+  "regional_forecasts": [
+    {
+      "region": "north",
+      "overall_trend": "growth",
+      "confidence": 0.85,
+      "predicted_growth_rate": 15.2,
+      "key_drivers": ["urbanization", "disposable_income_growth"],
+      "risk_factors": ["competition", "supply_chain"]
+    },
+    {
+      "region": "south",
+      "overall_trend": "stable_growth",
+      "confidence": 0.82,
+      "predicted_growth_rate": 11.8,
+      "key_drivers": ["tech_sector_growth", "education_awareness"],
+      "risk_factors": ["weather_volatility", "logistics_costs"]
+    },
+    {
+      "region": "west",
+      "overall_trend": "strong_growth",
+      "confidence": 0.89,
+      "predicted_growth_rate": 18.5,
+      "key_drivers": ["financial_hub", "port_connectivity"],
+      "risk_factors": ["real_estate_costs", "labor_availability"]
+    },
+    {
+      "region": "east",
+      "overall_trend": "recovery",
+      "confidence": 0.73,
+      "predicted_growth_rate": 8.9,
+      "key_drivers": ["infrastructure_development", "government_support"],
+      "risk_factors": ["political_stability", "industrial_challenges"]
+    }
+  ],
+  "market_trends": [
+    {
+      "trend": "digital_payment_adoption",
+      "impact_score": 8.5,
+      "growth_rate": 45.2,
+      "business_impact": "positive"
+    },
+    {
+      "trend": "sustainable_products_demand",
+      "impact_score": 7.8,
+      "growth_rate": 32.1,
+      "business_impact": "positive"
+    },
+    {
+      "trend": "premium_product_preference",
+      "impact_score": 7.2,
+      "growth_rate": 28.7,
+      "business_impact": "positive"
+    },
+    {
+      "trend": "online_shopping_integration",
+      "impact_score": 9.1,
+      "growth_rate": 52.8,
+      "business_impact": "transformative"
+    }
+  ]
+}
